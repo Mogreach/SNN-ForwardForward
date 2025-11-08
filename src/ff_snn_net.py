@@ -556,10 +556,16 @@ class OutputLayer(nn.Module):
         ksi_output = ksi_output.transpose(0,1)
         self.opt.zero_grad()
         weight_grad = ksi_output @ input_spike_sum / N
-        with torch.no_grad():
-            for param in self.layer.parameters():
-                    # 使用优化器更新权重           
-                    param += self.lr * weight_grad
+        # with torch.no_grad():
+        #     for param in self.layer.parameters():
+        #             # 使用优化器更新权重           
+        #             param += self.lr * weight_grad
+        criterion = nn.CrossEntropyLoss()
+        loss = criterion(spike_sums, label)
+        # 反向传播
+        loss.backward()
+        # 更新权重
+        self.opt.step()
         functional.reset_net(self.layer)
         return output_spike.detach()
     def predict(self, x):

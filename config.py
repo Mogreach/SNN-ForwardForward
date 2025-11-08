@@ -12,7 +12,7 @@ License       : MIT
 import argparse
 class ConfigParser:
     def __init__(self):
-        self.parser = argparse.ArgumentParser(description="FF-STDP Training")
+        self.parser = argparse.ArgumentParser(description="FF-STDP Training 目标层交叉熵损失")
         self.parser.add_argument(
             "-dataset", default="MNIST", type=str, help="Train dataset"
         )
@@ -81,7 +81,7 @@ class ConfigParser:
         )
         self.parser.add_argument(
             "-loss_threshold",
-            default=0.25,
+            default=4.0,
             type=float,
             help="threshold of loss function",
         )
