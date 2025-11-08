@@ -81,7 +81,7 @@ class ConfigParser:
         )
         self.parser.add_argument(
             "-loss_threshold",
-            default=4.0,
+            default=0.5,
             type=float,
             help="threshold of loss function",
         )

@@ -82,6 +82,13 @@ def overlay_y_on_x(x, y, classes=10):
             x_.max()
         )  # 将每个样本前10个像素中，对应标签类别序号赋为当前矩阵最大值
     return x_
+def get_predict_sample(x, classes=10):
+    """Replace the first 10 pixels of data [x] with one-hot-encoded label [y]"""
+    x_ = x.clone()  # 创建一个 x 的副本，避免修改原始数据
+    batch_size = x.shape[0]  # 获取批量大小
+    x_[:, :, 0, :classes] *= 0.0   # 将N*C*H*W格式向量的每个样本的前10个像素值赋0
+    x_[:, :, 0, :classes] +=5/classes   # 将N*C*H*W格式向量的每个样本的前10个像素值赋0.5
+    return x_
 
 def spike_encoder(images: torch.Tensor, T: int) -> torch.Tensor:
     """
@@ -152,7 +159,7 @@ class Net(torch.nn.Module):
                 self.layers += nn.ModuleList(
                     [
                         OutputLayer(
-                            in_features=10+sum(dims[1:d+1]),
+                            in_features=sum(dims[1:d+1]),
                             out_features=dims[d + 1],
                             epoch=epoch,
                             T=T,
@@ -173,7 +180,7 @@ class Net(torch.nn.Module):
                             epoch=epoch,
                             T=T,
                             lr=lr,
-                            v_threshold_pos=v_threshold_pos + d *0.2,
+                            v_threshold_pos=v_threshold_pos,
                             v_threshold_neg=v_threshold_neg,
                             tau=tau,
                             loss_threshold=loss_threshold,
@@ -184,12 +191,12 @@ class Net(torch.nn.Module):
                 self.layers += nn.ModuleList(
                     [
                         Layer(
-                            in_features=10+dims[d],
+                            in_features=dims[d],
                             out_features=dims[d + 1],
                             epoch=epoch,
                             T=T,
                             lr=lr,
-                            v_threshold_pos=v_threshold_pos + d *0.2,
+                            v_threshold_pos=v_threshold_pos,
                             v_threshold_neg=v_threshold_neg,
                             tau=tau,
                             loss_threshold=loss_threshold,
@@ -226,22 +233,23 @@ class Net(torch.nn.Module):
         return goodness_of_all_label.argmax(1)
         # 通过goodness计算预测结果
     def predict_winner(self, x):
-        label = torch.randint(0, 10, (x.shape[0],))
-        h = overlay_y_on_x(x, label)
+        # label = torch.randint(0, 10, (x.shape[0],))
+        # h = overlay_y_on_x(x, label)
+        h = get_predict_sample(x)
         # 频率编码
         h = spike_encoder(x, self.T)
         h = h.flatten(2)  # 将输入展平为 [T, B, C*H*W] 的形状
         spike_in_of_label = h[:,:,0:10]
         spike_in_of_output_layer = torch.empty((h.shape[0],h.shape[1],0)).cuda()
         # spike_in_of_output_layer = torch.cat((spike_in_of_output_layer,h),dim=2)
-        spike_in_of_output_layer = torch.cat((spike_in_of_output_layer,spike_in_of_label),dim=2)
+        # spike_in_of_output_layer = torch.cat((spike_in_of_output_layer,spike_in_of_label),dim=2)
         for i, layer in enumerate(self.layers):
             if i == len(self.layers) - 1:
                 spike_out = layer.predict(spike_in_of_output_layer) 
             else:
                 h = layer.predict(h)
                 spike_in_of_output_layer = torch.cat((spike_in_of_output_layer,h),dim=2)
-                h = torch.cat((h,spike_in_of_label),dim=2)
+                # h = torch.cat((h,spike_in_of_label),dim=2)
         spike_out_sum = spike_out.sum(0)  # 计算输出层的总脉冲
         return spike_out_sum.argmax(1)
     def predict_analyze(self, x):
@@ -306,7 +314,7 @@ class Net(torch.nn.Module):
         cos_sim_per_layer = []
         spike_in_of_label = spike_input[:,:,0:10]
         spike_in_of_output_layer = torch.empty((spike_input.shape[0],spike_input.shape[1],0)).cuda()
-        spike_in_of_output_layer = torch.cat((spike_in_of_output_layer,spike_input[:,:,0:10]),dim=2)
+        # spike_in_of_output_layer = torch.cat((spike_in_of_output_layer,spike_input[:,:,0:10]),dim=2)
         # spike_in_of_output_layer = torch.cat((spike_in_of_output_layer,spike_input),dim=2)
         for i, layer in enumerate(self.layers):
             if i == len(self.layers) - 1:
@@ -316,7 +324,7 @@ class Net(torch.nn.Module):
                 goodness_per_layer.append(g.mean().item())
                 cos_sim_per_layer.append(cos_sim)
                 spike_in_of_output_layer = torch.cat((spike_in_of_output_layer,spike_input),dim=2)
-                spike_input = torch.cat((spike_input,spike_in_of_label),dim=2)
+                # spike_input = torch.cat((spike_input,spike_in_of_label),dim=2)
         return goodness_per_layer, cos_sim_per_layer , spike_output
 
     def save(self, args, path):
