@@ -87,7 +87,7 @@ def get_predict_sample(x, classes=10):
     x_ = x.clone()  # 创建一个 x 的副本，避免修改原始数据
     batch_size = x.shape[0]  # 获取批量大小
     x_[:, :, 0, :classes] *= 0.0   # 将N*C*H*W格式向量的每个样本的前10个像素值赋0
-    x_[:, :, 0, :classes] +=5/classes   # 将N*C*H*W格式向量的每个样本的前10个像素值赋0.5
+    x_[:, :, 0, :classes] +=1/classes   # 将N*C*H*W格式向量的每个样本的前10个像素值赋0.5
     return x_
 
 def spike_encoder(images: torch.Tensor, T: int) -> torch.Tensor:
@@ -237,7 +237,7 @@ class Net(torch.nn.Module):
         # h = overlay_y_on_x(x, label)
         h = get_predict_sample(x)
         # 频率编码
-        h = spike_encoder(x, self.T)
+        h = spike_encoder(h, self.T)
         h = h.flatten(2)  # 将输入展平为 [T, B, C*H*W] 的形状
         spike_in_of_label = h[:,:,0:10]
         spike_in_of_output_layer = torch.empty((h.shape[0],h.shape[1],0)).cuda()
