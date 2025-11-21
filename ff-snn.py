@@ -28,6 +28,7 @@ from config import ConfigParser
 from src.dataset import GroupedSortedMNIST
 import logging
 from spikingjelly.datasets.n_mnist import NMNIST
+from src.generate_neg_sample import *
 def get_y_neg(y, device):
     y_neg = y.clone()
     for idx, y_samp in enumerate(y):
@@ -40,22 +41,6 @@ def get_y_neg(y, device):
         ].item()
     return y_neg.to(device)
 
-
-def overlay_y_on_x(x, y, classes=10):
-    """Replace the first 10 pixels of data [x] with one-hot-encoded label [y]"""
-    x_ = x.clone()  # 创建一个 x 的副本，避免修改原始数据
-    batch_size = x.shape[0]  # 获取批量大小
-    x_[:, :, 0, :classes] *= 0.0  # 将N*C*H*W格式向量的每个样本的前10个像素值赋0
-    # 遍历每个样本
-    for i in range(batch_size):
-        # 获取当前样本的标签
-        label = y[i].item()  # y[i]是该样本的标签
-        # 确保标签在0到9之间（根据设置的 classes）
-        # 将第一通道前10个像素位置中对应标签的像素赋值为最大值
-        x_[i, :, 0, label] = (
-            x_.max()
-        )  # 将每个样本前10个像素中，对应标签类别序号赋为当前矩阵最大值
-    return x_
 
 
 def visualize_sample(data, name="", idx=0):
@@ -322,9 +307,22 @@ def main():
                 x, y = x.to(device), y.to(device)
                 label_onehot = F.one_hot(y, 10).float()
                 # 先导入MNIST图像的数据集，生成正负样本后再编码成脉冲序列数据集
-                x_pos = overlay_y_on_x(x, y)
+                # 标签嵌入
+                # 传统方式：
+                # x_pos = overlay_y_on_x(x, y)
+                # y_neg = get_y_neg(y, device)
+                # x_neg = overlay_y_on_x(x, y_neg)
+                # 负样本独0码标签：
+                x_pos = overlay_label_on_x(x)
                 y_neg = get_y_neg(y, device)
                 x_neg = overlay_y_on_x(x, y_neg)
+                
+                # x_neg = overlay_zero_on_x(x,y)
+                # Mask掩码
+                # x_pos = x
+                # x_neg = generate_negative_samples_continuous(x_pos, y, train_dataset.dataset, device=device, visualize=False)
+                # x_pos = overlay_label_on_x(x_pos)
+                # x_neg = overlay_zero_on_x(x_neg,y)
                 goodness_pos, goodness_neg, cos_pos, cos_neg = net.train_ff_stdp(x_pos, x_neg, y)
                 # 单个batch获取所有层的平均余弦相似度以及优度值
                 goodness_pos = torch.tensor(goodness_pos)
