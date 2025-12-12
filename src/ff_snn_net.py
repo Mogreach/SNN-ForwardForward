@@ -204,7 +204,7 @@ class Net(torch.nn.Module):
                 h = layer.predict(h)
                 freq = h.mean(0)  # 计算每层的平均频率
                 goodness = goodness + [layer.cal_goodness(freq).sum(1)] # 对每个样本的单层goodness求和
-                h = torch.cat((h, spike_in_of_label),dim=2)
+                # h = torch.cat((h, spike_in_of_label),dim=2)
             goodness_per_label += [sum(goodness).unsqueeze(1)] # 对所有层求和优度值
         goodness_of_all_label = torch.cat(goodness_per_label, 1)# 拼接所有标签编码对应优度值
         return goodness_of_all_label.argmax(1)
@@ -382,7 +382,7 @@ class Layer(nn.Module):
 
     def cal_goodness(self, freq):
         # goodness = self.T * freq.pow(2)
-        goodness = self.T * freq.abs().pow(2) * freq.sign()
+        goodness = self.T * freq.abs().pow(2)
         return goodness
 
     def forward(self, x):
@@ -407,7 +407,7 @@ class Layer(nn.Module):
         if train_mode:
             self.opt.zero_grad()
             pos_goodness = self.cal_goodness(g_pos_freq)
-            neg_goodness = self.cal_goodness(g_neg_freq)
+            neg_goodness = self.cal_goodness(g_neg_freq) 
             loss = torch.log(
                 1
                 + torch.exp(

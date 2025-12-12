@@ -3,6 +3,25 @@ from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 import random
 import torch
+
+def get_hard_negative(x, y, dataset):
+    # dataset: 全部 MNIST 的 tensor 数据
+    # x shape: [B, 1, 28, 28]
+    B = x.shape[0]
+    x_neg = torch.zeros_like(x)
+
+    for i in range(B):
+        true_class = y[i].item()
+
+        # 找到其他类别
+        idxs = torch.where(dataset.targets != true_class)[0]
+
+        # 随机取 1 个负样本
+        rand_idx = idxs[torch.randint(len(idxs), (1,))]
+        x_neg[i] = dataset.data[rand_idx].float() / 255.0
+
+    return x_neg
+
 def get_y_neg(y, device):
     y_neg = y.clone()
     for idx, y_samp in enumerate(y):
@@ -28,10 +47,19 @@ def overlay_y_on_x(x, y, classes=10):
         label = y[i].item()  # y[i]是该样本的标签
         # 确保标签在0到9之间（根据设置的 classes）
         # 将第一通道前10个像素位置中对应标签的像素赋值为最大值
-        x_[i, :, 0, label] = (
-            x_.max()
-        )  # 将每个样本前10个像素中，对应标签类别序号赋为当前矩阵最大值
+        # 判断标签是否属于 8/9
+        if label in [5, 8, 9]:
+            value = 1.0
+        else:
+            value = 1.0
+
+        x_[i, :, 0, label] = value
+
+        # x_[i, :, 0, label] = (
+        #     x_.max()
+        # )  # 将每个样本前10个像素中，对应标签类别序号赋为当前矩阵最大值
     return x_
+
 def overlay_label_on_x(x, classes=10):
     """Replace the first 10 pixels of data [x] with one-hot-encoded label [y]"""
     x_ = x.clone()  # 创建一个 x 的副本，避免修改原始数据
@@ -154,6 +182,13 @@ def generate_negative_samples_continuous(x, y, dataset, num_classes=10, device='
             plt.show()
 
     return neg_samples
+def get_predict_sample(x, classes=10):
+    """Replace the first 10 pixels of data [x] with one-hot-encoded label [y]"""
+    x_ = x.clone()  # 创建一个 x 的副本，避免修改原始数据
+    batch_size = x.shape[0]  # 获取批量大小
+    x_[:, :, 0, :classes] *= 0.0   # 将N*C*H*W格式向量的每个样本的前10个像素值赋0
+    x_[:, :, 0, :classes] +=1/classes   # 将N*C*H*W格式向量的每个样本的前10个像素值赋0.5
+    return x_
 
 if __name__ == "__main__":
 

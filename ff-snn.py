@@ -302,20 +302,21 @@ def main():
             goodness_neg_sum = 0
             cos_pos_sum = 0
             cos_neg_sum = 0
-            for x, y in train_data_loader:
+            for x, y in grouped_loader:
                 batch_samples += 1
                 x, y = x.to(device), y.to(device)
                 label_onehot = F.one_hot(y, 10).float()
                 # 先导入MNIST图像的数据集，生成正负样本后再编码成脉冲序列数据集
                 # 标签嵌入
                 # 传统方式：
-                # x_pos = overlay_y_on_x(x, y)
-                # y_neg = get_y_neg(y, device)
-                # x_neg = overlay_y_on_x(x, y_neg)
-                # 负样本独0码标签：
-                x_pos = overlay_label_on_x(x)
+                x_pos = overlay_y_on_x(x, y)
                 y_neg = get_y_neg(y, device)
                 x_neg = overlay_y_on_x(x, y_neg)
+                # 负样本独0码标签：
+                # x_pos = overlay_label_on_x(x)
+                # y_neg = get_y_neg(y, device)
+                # x_neg = overlay_y_on_x(x, y_neg)
+                # x_neg = get_hard_negative(x, y, train_data_loader)
                 
                 # x_neg = overlay_zero_on_x(x,y)
                 # Mask掩码
@@ -348,7 +349,7 @@ def main():
                 for x_val, y_val in val_data_loader:
                     val_samples += 1
                     x_val, y_val = x_val.to(device), y_val.to(device)
-                    val_acc += net.predict_winner(x_val).eq(y_val).cpu().float().mean().item()
+                    val_acc += net.predict(x_val).eq(y_val).cpu().float().mean().item()
                 train_acc = 100 * (val_acc / val_samples)
                 train_acc_list.append(train_acc)
                 print(f"Train Acc:  {train_acc:.2f}%")
@@ -394,7 +395,7 @@ def main():
                 test_samples += y_te.numel()
                 test_count += 1
                 x_te, y_te = x_te.to(device), y_te.to(device)
-                test_acc += net.predict_winner(x_te).eq(y_te).cpu().float().mean().item()
+                test_acc += net.predict(x_te).eq(y_te).cpu().float().mean().item()
         end_time = time.time()
         total_time = end_time - start_time
         hours, rem = divmod(total_time, 3600)
