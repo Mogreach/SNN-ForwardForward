@@ -452,6 +452,7 @@ class Layer(nn.Module):
             L_to_s_grad = 2*out_freq*neg_derivative(goodness,self.threshold)
             loss = torch.log(1 + torch.exp(goodness - self.threshold)).mean()
         weight_grad = -1 * L_to_s_grad @ input_spike_sum / N
+        # weight_grad = -1 * ((L_to_s_grad.mean(0,keepdim=True) @ input_spike_sum.mean(1,keepdim=True)) / N)
         # weight_grad = -1 * torch.mean(L_to_s_grad,dim=1,keepdim=True) @ torch.mean(input_spike_sum,dim=0,keepdim=True)
         loss.backward()
         with torch.no_grad():

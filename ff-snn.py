@@ -26,7 +26,7 @@ from spikingjelly.activation_based import encoding, functional
 import torch.nn.functional as F
 from src.ff_snn_net import Net
 from config import ConfigParser
-from src.dataset import GroupedSortedMNIST, AugmentedMNIST
+from src.dataset import GroupedSortedMNIST
 import logging
 from spikingjelly.datasets.n_mnist import NMNIST
 from src.generate_neg_sample import *
@@ -375,7 +375,7 @@ def main():
             goodness_neg_sum = 0
             cos_pos_sum = 0
             cos_neg_sum = 0
-            for x, y in grouped_loader:
+            for x, y in train_data_loader:
                 batch_samples += 1
                 x, y = x.to(device), y.to(device)
                 label_onehot = F.one_hot(y, 10).float()

@@ -48,16 +48,16 @@ def overlay_y_on_x(x, y, classes=10):
         # 确保标签在0到9之间（根据设置的 classes）
         # 将第一通道前10个像素位置中对应标签的像素赋值为最大值
         # 判断标签是否属于 8/9
-        if label in [5, 8, 9]:
-            value = 1.0
-        else:
-            value = 1.0
+        # if label in [5, 8, 9]:
+        #     value = 1.0
+        # else:
+        #     value = 1.0
 
-        x_[i, :, 0, label] = value
+        # x_[i, :, 0, label] = value
 
-        # x_[i, :, 0, label] = (
-        #     x_.max()
-        # )  # 将每个样本前10个像素中，对应标签类别序号赋为当前矩阵最大值
+        x_[i, :, 0, label] = (
+            x_.max()
+        )  # 将每个样本前10个像素中，对应标签类别序号赋为当前矩阵最大值
     return x_
 
 def overlay_label_on_x(x, classes=10):
