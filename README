@@ -1,0 +1,6 @@
+This repository contains the supplementary source code for the manuscript "An Energy Efficient SNN Accelerator based on FF-STDP with on chip Learning", which is currently under submission to IEEE Transactions on Circuits and Systems II: Express Briefs (TCAS-II).This code is provided for academic review purposes only and is not intended for redistribution or use in any research or commercial products. The authors reserve all rights. Unauthorized use, reproduction, or distribution of this code is prohibited.
+Important Notes
+    1. The code is provided for academic reference only, intended to facilitate the reproducibility of the experimental results and technical details presented in the manuscript.
+    2. The code is preliminary and optimized for research validation purpose, not for commercial use.
+    Redistribution, secondary development or commercial utilization of this code is not permitted before the formal acceptance and publication of the manuscript.
+    3. The copyright of all source code and related algorithm design belongs to the authors of the manuscript.
