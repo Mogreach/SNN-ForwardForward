@@ -1,6 +1,11 @@
 MIT License
 
-Copyright (c) 2023 Sindy Löwe
+Copyright (c) 2026 [Mogreach XiDian University]
+
+This work is based on the Forward-Forward (FF) baseline open-source code from:
+https://github.com/loeweX/Forward-Forward (Copyright (c) 2023 Sindy Löwe)
+and
+https://github.com/whubaichuan/Forward-Forward
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -9,13 +14,17 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
+The above copyright notice, this permission notice and the original code reference shall be included in all
 copies or substantial portions of the Software.
+
+### Critical Restriction for Academic Peer Review
+The manuscript **An Energy Efficient SNN Accelerator based on FF-STDP with on chip Learning** associated with this code is currently under peer review at IEEE Transactions on Circuits and Systems II: Express Briefs (TCAS-II). 
+**Unauthorized use, reproduction, redistribution, or publication of this code/derivative work for research submission is strictly prohibited** before the formal acceptance of the manuscript. All research rights are reserved by the authors.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
